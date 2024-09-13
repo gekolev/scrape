@@ -26,13 +26,13 @@ module.exports = async function handler(req, res) {
         responseType: 'arraybuffer',  // Use arraybuffer to avoid encoding issues
       });
 
-      // Decode the binary response using Windows-1251 encoding (specific for imot.bg)
-      const decodedData = iconv.decode(Buffer.from(response.data), 'windows-1251');  // Decode as windows-1251
+      // Decode the binary response to UTF-8 (the default for most modern websites like Wikipedia)
+      const decodedData = iconv.decode(Buffer.from(response.data), 'utf-8');  // Decode as UTF-8 by default
 
       // Parse the HTML using Cheerio
       const $ = cheerio.load(decodedData);
 
-      // Extract all <h1> and <p> tags (or customize as needed)
+      // Extract all <h1> and <p> tags
       const scrapedData = [];
       
       $('h1').each((index, element) => {
