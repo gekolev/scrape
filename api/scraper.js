@@ -1,8 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const xlsx = require('xlsx');
-const fs = require('fs');
-const path = require('path');
 
 // Function to get the current date in YYYY-MM-DD format
 function getCurrentDate() {
@@ -35,25 +33,19 @@ export default async function handler(req, res) {
         scrapedData.push({ Tag: 'p', Content: $(element).text() });
       });
 
-      // Create an Excel file
+      // Create an Excel file in memory
       const worksheet = xlsx.utils.json_to_sheet(scrapedData);
       const workbook = xlsx.utils.book_new();
       xlsx.utils.book_append_sheet(workbook, worksheet, 'Scraped Data');
 
-      // Generate file name with the current date
-      const filename = `scraped_data_${getCurrentDate()}.xlsx`;
-      const filepath = path.join('/tmp', filename); // Use the /tmp directory
+      // Generate the file as a buffer
+      const excelBuffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
-      // Save the Excel file in the /tmp directory
-      xlsx.writeFile(workbook, filepath);
+      // Send the Excel file buffer as a download
+      res.setHeader('Content-Disposition', `attachment; filename="scraped_data_${getCurrentDate()}.xlsx"`);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.send(excelBuffer);
 
-      // Send the file as a response for download
-      res.download(filepath, filename, (err) => {
-        if (err) {
-          console.error('Error in sending file:', err);
-          return res.status(500).json({ error: 'File download error' });
-        }
-      });
     } catch (error) {
       console.error('Error during scraping or file creation:', error);
       res.status(500).json({ error: 'Error during scraping or file creation' });
