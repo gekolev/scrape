@@ -1,6 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const xlsx = require('xlsx');
+const iconv = require('iconv-lite');
 
 // Function to get the current date in YYYY-MM-DD format
 function getCurrentDate() {
@@ -20,13 +21,13 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-      // Fetch the webpage with UTF-8 encoding
-      const { data } = await axios.get(url, {
+      // Fetch the webpage with binary responseType
+      const response = await axios.get(url, {
         responseType: 'arraybuffer',  // Use arraybuffer to avoid encoding issues
-        responseEncoding: 'binary'    // Ensure no corruption for Cyrillic characters
       });
 
-      const decodedData = Buffer.from(data, 'binary').toString('utf-8');  // Convert binary response to UTF-8
+      // Decode the binary response to UTF-8 using iconv-lite
+      const decodedData = iconv.decode(Buffer.from(response.data), 'utf-8');
 
       // Parse the HTML using Cheerio
       const $ = cheerio.load(decodedData);
