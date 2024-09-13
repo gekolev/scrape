@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
-const scraper = require('./routes/scraper');
+const scraper = require('./api/scraper');
 
 const app = express();
 const port = process.env.PORT || 3000;
