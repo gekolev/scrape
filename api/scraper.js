@@ -23,20 +23,14 @@ module.exports = async function handler(req, res) {
     try {
       // Fetch the webpage with binary responseType
       const response = await axios.get(url, {
-        responseType: 'arraybuffer',  // Use arraybuffer to avoid encoding issues
+        responseType: 'arraybuffer',  // Fetch raw binary data
       });
 
-      // Decode the binary response to UTF-8 using iconv-lite
-      const decodedData = iconv.decode(Buffer.from(response.data), 'utf-8');
+      // Decode the binary response to Windows-1251 using iconv-lite
+      const decodedData = iconv.decode(Buffer.from(response.data), 'win1251');  // Decode Windows-1251 to UTF-8
 
       // Parse the HTML using Cheerio
       const $ = cheerio.load(decodedData);
-
-      // Check if the document language is Bulgarian (lang="bg")
-      const htmlLang = $('html').attr('lang');
-      if (htmlLang !== 'bg') {
-        return res.status(400).json({ error: 'The page is not in Bulgarian.' });
-      }
 
       // Extract all <h1> and <p> tags
       const scrapedData = [];
