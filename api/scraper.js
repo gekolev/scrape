@@ -23,16 +23,16 @@ module.exports = async function handler(req, res) {
     try {
       // Fetch the webpage with binary responseType
       const response = await axios.get(url, {
-        responseType: 'arraybuffer',  // Fetch raw binary data
+        responseType: 'arraybuffer',  // Use arraybuffer to avoid encoding issues
       });
 
-      // Decode the binary response to Windows-1251 using iconv-lite
-      const decodedData = iconv.decode(Buffer.from(response.data), 'win1251');  // Decode Windows-1251 to UTF-8
+      // Decode the binary response using Windows-1251 encoding (specific for imot.bg)
+      const decodedData = iconv.decode(Buffer.from(response.data), 'windows-1251');  // Decode as windows-1251
 
       // Parse the HTML using Cheerio
       const $ = cheerio.load(decodedData);
 
-      // Extract all <h1> and <p> tags
+      // Extract all <h1> and <p> tags (or customize as needed)
       const scrapedData = [];
       
       $('h1').each((index, element) => {
