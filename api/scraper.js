@@ -31,28 +31,22 @@ module.exports = async function handler(req, res) {
       // Parse the HTML using Cheerio
       const $ = cheerio.load(decodedData);
 
-      // Extract Bulgarian content from elements with lang="bg"
+      // Check if the document language is Bulgarian (lang="bg")
+      const htmlLang = $('html').attr('lang');
+      if (htmlLang !== 'bg') {
+        return res.status(400).json({ error: 'The page is not in Bulgarian.' });
+      }
+
+      // Extract all <h1> and <p> tags
       const scrapedData = [];
       
-      // Extract <h1> tags with lang="bg"
-      $('h1[lang="bg"]').each((index, element) => {
+      $('h1').each((index, element) => {
         scrapedData.push({ Tag: 'h1', Content: $(element).text() });
       });
       
-      // Extract <p> tags with lang="bg"
-      $('p[lang="bg"]').each((index, element) => {
+      $('p').each((index, element) => {
         scrapedData.push({ Tag: 'p', Content: $(element).text() });
       });
-
-      // If no lang="bg" tags found, fall back to extracting all <h1> and <p> tags
-      if (scrapedData.length === 0) {
-        $('h1').each((index, element) => {
-          scrapedData.push({ Tag: 'h1', Content: $(element).text() });
-        });
-        $('p').each((index, element) => {
-          scrapedData.push({ Tag: 'p', Content: $(element).text() });
-        });
-      }
 
       // Create an Excel file with the extracted data
       const worksheet = xlsx.utils.json_to_sheet(scrapedData);
