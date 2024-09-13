@@ -1,17 +1,19 @@
 const express = require('express');
 const path = require('path');
+const bodyParser = require('body-parser');
 const scraper = require('./routes/scraper');
 
 const app = express();
-
-// Use the environment variable PORT if it exists, otherwise default to 3000
 const port = process.env.PORT || 3000;
+
+// Middleware to parse form data
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Serve the public folder to render the front-end
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Scraping route
-app.get('/scrape', scraper);
+app.post('/scrape', scraper);
 
 // Start the server
 app.listen(port, () => {

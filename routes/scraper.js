@@ -15,9 +15,15 @@ function getCurrentDate() {
 
 // Scraping route
 const scrapeData = async (req, res) => {
+  const url = req.body.url;
+
+  if (!url) {
+    return res.status(400).send('URL is required.');
+  }
+
   try {
-    // Make a request to the website
-    const { data } = await axios.get('https://example.com'); // Replace with the target website
+    // Make a request to the user-provided website
+    const { data } = await axios.get(url);
     const $ = cheerio.load(data);
 
     // Extract data from the website
@@ -52,7 +58,7 @@ const scrapeData = async (req, res) => {
     });
   } catch (error) {
     console.error('Error during scraping or file creation:', error);
-    res.status(500).send('Error during scraping or file creation');
+    res.status(500).send('Error during scraping or file creation.');
   }
 };
 
